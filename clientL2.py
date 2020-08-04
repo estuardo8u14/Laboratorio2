@@ -3,6 +3,8 @@ import select
 import errno
 import sys
 import pickle
+from bitarray import bitarray
+import random
 
 HEADER_LENGTH = 10 
 IP = "127.0.0.1"
@@ -26,11 +28,20 @@ def receive_message(client_socket,header = ''):
     except:
         return False
 
+def signin(username):
+    dprotocol = {
+        'type': 'signin',
+        'username': username
+    }
+    # serializing dprotocol
+    msg = pickle.dumps(dprotocol)
+    # adding header to msg
+    msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
+    return msg
 
-def signinok(roomID):
+def signinok():
     dprotocol = {
         "type":"signinok",
-        "roomID": roomID
     }
     # serializing dprotocol
     msg = pickle.dumps(dprotocol)
@@ -49,6 +60,19 @@ def sendmessage(message):
     msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
     return msg
 
+def addNoise(pickledmsg):
+    # se crea el bitarray
+    ba = bitarray()
+    # se genera el bitarray apartir del mensaje pickled
+    ba.frombytes(pickledmsg)
+    # se agrega 1 ruido por cada 100 bytes
+    for i in range(int(round(len(ba)/100,0))):
+        # al azar se modifica el valor de un bit
+        ba[random.randint(0,len(ba))] = not ba[random.randint(0,len(ba))]
+    # se returna el mensaje pickles con el array con ruido.
+    return ba.tobytes()
+
+
 
 # make conncection
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -58,14 +82,7 @@ print(f"Connected to server in {IP}:{PORT}")
 signedin = False
 
 my_username = input("Username: ")
-dprotocol = {
-    'type': 'signin',
-    'username': my_username
-}
-# serializing dprotocol
-msg = pickle.dumps(dprotocol)
-# adding header to msg
-msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
+msg = signin(my_username)
 client_socket.send(msg)
 
 while not signedin:
@@ -77,7 +94,7 @@ while not signedin:
                 if message['data']['username'] == my_username:
                     # send signinok
                     print(f"Singned in server @{IP}:{PORT} as {my_username}")
-                    msg = signinok(message['data']['roomID'])
+                    msg = signinok()
                     client_socket.send(msg)
                     signedin = True
                     break

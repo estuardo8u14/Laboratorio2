@@ -37,7 +37,6 @@ def useraccepted(username):
     dprotocol = {
         'type': 'useraccepted',
         'username': username,
-        'roomID': 1
     }
     # serializing dprotocol
     msg = pickle.dumps(dprotocol)
@@ -89,7 +88,6 @@ while True:
 
         else:
             message = receive_message(notified_socket)
-            print(message)
 
             if message is False:
                 print(f"Closed connection from {clients[notified_socket]['data']['username']}")
