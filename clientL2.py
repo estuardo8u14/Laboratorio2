@@ -73,6 +73,24 @@ def addNoise(pickledmsg):
     return ba.tobytes()
 
 
+# Funciones tratar de implementar para Hamming en correccion de errores
+'''
+def hammingDistance(a, b):
+    distance = 0
+    for i in xrange(len(a)):
+        distance += a[i]^b[i]
+    return distance
+
+def minHammingDistance(code):
+    minHammingDistance = len(code[0])
+    for a in code:
+        for b in code:
+            if a != b:
+                tmp = hammingDistance(a, b)
+                if tmp < minHammingDistance:
+                    minHammingDistance = tmp
+    return minHammingDistance
+'''
 
 # make conncection
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
