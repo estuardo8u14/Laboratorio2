@@ -66,7 +66,7 @@ def sendNoisyMessage(message):
     noisymessage = addNoise(pickle.dumps(message))
     dprotocol = {
         "type":"sendmessage",
-        "message": message,
+        "message": noisymessage,
         "crc32": crc32
     }
     # serializing dprotocol
@@ -156,7 +156,7 @@ while True:
 
 
     if message:
-        msg = sendmessage(message)
+        msg = sendNoisyMessage(message)
         client_socket.send(msg)
 
     try:

@@ -44,11 +44,12 @@ def useraccepted(username):
     msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
     return msg
 
-def broadcast(username,message):
+def broadcast(username,message,crc32):
     dprotocol = {
         'type': 'message',
         'username': username,
-        'message': message
+        'message': message,
+        'crc32': crc32
     }
     # serializing dprotocol
     msg = pickle.dumps(dprotocol)
@@ -98,7 +99,7 @@ while True:
             
             if message['data']['type'] == 'sendmessage':
                 print(f"Received message from {user['data']['username']}: {message['data']['message']}")
-                msg = broadcast(user['data']['username'],message['data']['message'])
+                msg = broadcast(user['data']['username'],message['data']['message'],message['data']['crc32'])
                 for client_socket in clients:
                     # send message to every client except the sender
                     if client_socket != notified_socket:
