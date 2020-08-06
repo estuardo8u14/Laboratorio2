@@ -6,6 +6,8 @@ import pickle
 from bitarray import bitarray
 import random
 import zlib
+import hammingL2 as ham
+import codecs
 
 HEADER_LENGTH = 10 
 IP = "127.0.0.1"
@@ -66,7 +68,7 @@ def sendNoisyMessage(message):
     noisymessage = addNoise(pickle.dumps(message))
     dprotocol = {
         "type":"sendmessage",
-        "message": message,
+        "message": noisymessage,
         "crc32": crc32
     }
     # serializing dprotocol
@@ -96,7 +98,6 @@ def hammingDistance(a, b):
     for i in xrange(len(a)):
         distance += a[i]^b[i]
     return distance
-
 def minHammingDistance(code):
     minHammingDistance = len(code[0])
     for a in code:
@@ -156,7 +157,7 @@ while True:
 
 
     if message:
-        msg = sendmessage(message)
+        msg = sendNoisyMessage(message)
         client_socket.send(msg)
 
     try:
@@ -173,7 +174,20 @@ while True:
                 message = msg['data']['message']
                 print(f"{username} > {message}")
             else:
-                print(f"You received a message with error from {msg['data']['username']}")
+                username = msg['data']['username']
+                print(f"You received a message with error from {username}")
+                r = ham.calcRedundantBits(len(msg['data']['message']))
+                mg = msg['data']['message']
+                arr = ham.posRedundantBits(mg, r)
+                arr = ham.calcParityBits(arr, r)
+                arreglo = ham.detectError(msg['data']['message'], r)
+                print(f"Bitarray using Hamming with no error:", arr)
+                msg1 = msg['data']['message']
+                arr2 = ham.posRedundantBits(msg1, r)
+                arr2 = ham.calcParityBits(arr2, r)
+                print(f"Bitarray using Hamming with  error:",  arr2)
+                print(f"Position of error:" + str(arreglo))
+
 
     except IOError as e:
         # errores de lectura
