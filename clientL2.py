@@ -176,14 +176,20 @@ while True:
             else:
                 username = msg['data']['username']
                 print(f"You received a message with error from {username}")
-                r = ham.calcRedundantBits(len(msg['data']['message']))
-                mg = msg['data']['message']
+                #para meter en bitarrays los bytes del mensaje
+                b1 = bitarray()
+                b1.frombytes(msg['data']['message'])
+                #to01() vuelve string a un bitarray y guardado en mg
+                mg = b1.to01()
+                r = ham.calcRedundantBits(len(mg))
+                # Determine the positions of Redundant Bits 
                 arr = ham.posRedundantBits(mg, r)
+                # Determine the parity bits 
                 arr = ham.calcParityBits(arr, r)
-                arreglo = ham.detectError(msg['data']['message'], r)
+
+                arreglo = ham.detectError(mg, r)
                 print(f"Bitarray using Hamming with no error:", arr)
-                msg1 = msg['data']['message']
-                arr2 = ham.posRedundantBits(msg1, r)
+                arr2 = ham.posRedundantBits(mg, r)
                 arr2 = ham.calcParityBits(arr2, r)
                 print(f"Bitarray using Hamming with  error:",  arr2)
                 print(f"Position of error:" + str(arreglo))
