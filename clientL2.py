@@ -173,7 +173,7 @@ while True:
                 message = msg['data']['message']
                 print(f"{username} > {message}")
             else:
-                print(f"You received a message with error from {username}")
+                print(f"You received a message with error from {msg['data']['username']}")
 
     except IOError as e:
         # errores de lectura
